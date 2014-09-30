@@ -4,11 +4,16 @@ from collections import defaultdict, Counter
 
 class SaleTerminal:
   """ A Sale Terminal
-    Calculates the total of items scanned based on a registry
+      Calculates the total of items scanned based on a registry
   """
 
+  #TODO pull registry out to a UniqueHeap
   def __init__(self):
     """ Public API methods should use other methods of construction, such as from_csv
+        registry_keys is used to facilitate a unique heap
+        registry is a list of min-heaps (heapq is only a min-heap)
+        We convert quantities to negative values as the priority value in the heap simulating a max-heap
+
     """
     self.registry = defaultdict(list)
     self.registry_keys = defaultdict(set)
