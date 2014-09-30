@@ -1,9 +1,17 @@
-from sale_terminal import SaleTerminal
+#from sale_terminal.test import TestSaleTerminal
+import sale_terminal
 
-terminal = SaleTerminal()
-terminal.register_product("A",1,1.25)
-terminal.register_product("A",6,6.00)
-terminal.scan("A")
-assert 1.25 == terminal.total()
-[terminal.scan("A") for x in xrange(5)]
-print terminal.total()
+def test_bulk_ABCDABAA():
+  terminal = sale_terminal.from_csv('data/test_registry.csv')
+  terminal.scan_bulk('ABCDABAA')
+  assert terminal.total() == 32.40
+
+def test_bulk_CCCCCC():
+  terminal = sale_terminal.from_csv('data/test_registry.csv')
+  terminal.scan_bulk('CCCCCCC')
+  assert terminal.total() == 7.25
+
+def test_bulk_ABCD():
+  terminal = sale_terminal.from_csv('data/test_registry.csv')
+  terminal.scan_bulk('ABCD')
+  assert terminal.total() == 15.40
