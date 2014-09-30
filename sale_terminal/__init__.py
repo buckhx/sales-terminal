@@ -48,10 +48,8 @@ class SaleTerminal:
     total = 0.0
     for product, count in self.gen_cart_product_counts():
       for quantity, price in self.gen_registry_quantity_prices(product):
-        #TODO Bug here
         total += (count / quantity) * price
-        count = count % quantity #(count - (count % quantity)) if (count / quantity > 0) else count
-        print "Product: {0}\nCount: {1}\nQuantity: {2}\nPrice: {3}\nTotal: {4}\n\n".format(product, count, quantity, price, total)
+        count = count % quantity
       if count != 0:
         raise ValueError("Product does not include a 1 quantity in registry: {0}".format(product))
     return total
