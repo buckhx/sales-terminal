@@ -1,5 +1,5 @@
 import csv
-import heapq
+from util.hash_heap import HashHeap, MAX_HEAP
 from collections import defaultdict, Counter
 
 class SaleTerminal:
@@ -13,10 +13,8 @@ class SaleTerminal:
         registry_keys is used to facilitate a unique heap
         registry is a list of min-heaps (heapq is only a min-heap)
         We convert quantities to negative values as the priority value in the heap simulating a max-heap
-
     """
-    self.registry = defaultdict(list)
-    self.registry_keys = defaultdict(set)
+    self.registry = defaultdict(HashHeap)
     self.cart = Counter()
 
   def scan(self, product):
@@ -46,20 +44,21 @@ class SaleTerminal:
         Calculation is done when this method is called
     """
     total = 0.0
-    for product, count in self.gen_cart_product_counts():
-      for quantity, price in self.gen_registry_quantity_prices(product):
+    for product, count in self.xcart_product_counts():
+      for quantity, price in self.xregistry_quantity_prices(product):
         total += (count / quantity) * price
         count = count % quantity
       if count != 0:
         raise ValueError("Product does not include a 1 quantity in registry: {0}".format(product))
     return total
 
-  def gen_registry_quantity_prices(self, product):
+  def xregistry_quantity_prices(self, product):
     """ Generator to get (quantity,price) ordered by quantity in descending order
     """
-    return ((abs(quantity),price) for quantity,price in self.registry[product])
+    print self.registry[product].heap
+    return self.registry[product].xpeek(len(self.registry[product]))
 
-  def gen_cart_product_counts(self):
+  def xcart_product_counts(self):
     """ Generator to get all of the (product, count) in the cart
     """
     return ((product, count) for product, count in self.cart.most_common())
@@ -70,16 +69,10 @@ class SaleTerminal:
         This method can accept multiple entries for the same product to simulate bulk pricing by varying quantities
     """
     if quantity <= 0:
-        raise ValueError("Cannot add product {0} with a negative or zero quantity: {1}".format(product, quantity))
+      raise ValueError("Cannot add product {0} with a negative or zero quantity: {1}".format(product, quantity))
     if price < 0:
-        raise ValueError("Cannot add product {0} with a negative price: {1}".format(product, price))
-    quantity = -quantity
-    keys, heap = self.registry_keys[product], self.registry[product]
-    if quantity in keys:
-      [heap.remove(rm) for rm in [qp for qp in heap if qp[0] == quantity]]
-      heapq.heapify(heap)
-    keys.add(quantity)
-    heapq.heappush(heap, (quantity, price))
+      raise ValueError("Cannot add product {0} with a negative price: {1}".format(product, price))
+    self.registry[product].push(int(quantity), float(price))
 
 #TODO make a model out of the file instead of this
 #TODO check that it include a 1 quantity value
@@ -91,5 +84,5 @@ def from_csv(csv_path):
   with open(csv_path) as csv_file:
     reader = csv.DictReader(csv_file)
     for row in reader:
-      terminal.register_product(row['product'], int(row['quantity']), float(row['price']))
+      terminal.register_product(row['product'], row['quantity'], row['price'])
   return terminal

@@ -35,7 +35,8 @@ class TestSaleTerminal:
   def test_register_product(self):
     self.terminal.register_product("Z", 6, 5.00)
     self.terminal.register_product("Z", 6, 6.00)
-    assert len([x for x in self.terminal.gen_registry_quantity_prices("Z")]) == 1
+    print [x for x in self.terminal.xregistry_quantity_prices("Z")]
+    assert len([x for x in self.terminal.xregistry_quantity_prices("Z")]) == 1
     self.terminal.register_product("Z", 6, 1)
     self.terminal.scan("Z")
     assert_raises(ValueError, self.terminal.register_product, "Z", -1, 5)
