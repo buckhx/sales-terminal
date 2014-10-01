@@ -7,12 +7,9 @@ class SaleTerminal:
       Calculates the total of items scanned based on a registry
   """
 
-  #TODO pull registry out to a UniqueHeap
   def __init__(self):
     """ Public API methods should use other methods of construction, such as from_csv
-        registry_keys is used to facilitate a unique heap
-        registry is a list of min-heaps (heapq is only a min-heap)
-        We convert quantities to negative values as the priority value in the heap simulating a max-heap
+        Registry is a dict of HashHeaps to preserve quantity order
     """
     self.registry = defaultdict(HashHeap)
     self.cart = Counter()
@@ -33,7 +30,7 @@ class SaleTerminal:
         Returns a dict of the product count for all objects that were scanned
     """
     scanned = set([])
-    # throw error if no in registry
+    # throw error if not in registry
     [self.scan(product) for product in bulk if product not in self.registry]
     # actually scan
     [(self.scan(product), scanned.add(product)) for product in bulk]
@@ -55,7 +52,6 @@ class SaleTerminal:
   def xregistry_quantity_prices(self, product):
     """ Generator to get (quantity,price) ordered by quantity in descending order
     """
-    print self.registry[product].heap
     return self.registry[product].xpeek(len(self.registry[product]))
 
   def xcart_product_counts(self):
